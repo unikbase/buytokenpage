@@ -1,34 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Double digital</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-  </head>
-  <body>
-    <section>
-      <div class="product">
-        <!--<img src="https://myim.png" alt="The token description" />-->
-        <div class="description">
-          <h3>Double digital</h3>
-          <h5>5.00	&euro;</h5>
-        </div>
+
+<head>
+  <title>Double digital</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body onload="init()">
+  <section>
+    Commandez le double digital de votre objet :
+    <div class="product">
+      <img id="object-img" src="" style="max-width:200px;max-height:200px;"/>
+      <div class="description">
+        <h3>Double digital</h3>
+        <h5>5.00&euro;</h5>
       </div>
-      <form action="/create-checkout-session" method="POST">
-        <button type="submit" id="checkout-button">Checkout</button>
-      </form>
-    </section>
-    <script>
-    function checkout(){
+    </div>
+    <button type="submit" id="checkout-button" onclick="return checkout()">Checkout</button>
+  </section>
+  <script>
+    var checkoutData = {}
+    function init() {
+      var s1 = location.search.substring(1, location.search.length).split('&'),
+        s2, i;
+      for (i = 0; i < s1.length; i += 1) {
+        s2 = s1[i].split('=');
+        checkoutData[decodeURIComponent(s2[0])] = decodeURIComponent(s2[1]);
+      }
+      document.getElementById("object-img").src=checkoutData["image"];
+    };
+    function checkout() {
       fetch("https://dev1.unikbase.dev/meveo/rest/strcheckout", {
-          method: "POST",
-          headers: {'Content-Type': 'application/json'}, 
-          body: JSON.stringify(data)
-       }).then(res => {
-          console.log("Request complete! response:", res);
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checkoutData)
+      }).then(res => {
+        console.log("Request complete! response:", res);
       });
     }
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
