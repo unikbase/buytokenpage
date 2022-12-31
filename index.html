@@ -4,8 +4,59 @@
 <head>
   <title>Double digital</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-  <script src="https://js.stripe.com/v3/"></script>
+  <!--<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+  <script src="https://js.stripe.com/v3/"></script>-->
+  <script>
+    var checkoutData = {};
+    function init() {
+      var s1 = location.search.substring(1, location.search.length).split('&'),
+        s2, i;
+      for (i = 0; i < s1.length; i += 1) {
+        s2 = s1[i].split('=');
+        checkoutData[decodeURIComponent(s2[0])] = decodeURIComponent(s2[1]);
+      }
+      document.getElementById("object-img").src = checkoutData["image"];
+      if(!checkoutData["tpk_id"]){
+        window.location.href = "http://www.unikbase.com";
+      }
+      if(checkoutData["email"]){
+        document.getElementById("email").innerText = checkoutData["email"];
+      } else {
+        document.getElementById("email-section").style.display = "none";
+        document.getElementById("no-email-section").style.display = "block";
+        document.getElementById("email-input").required = true;
+      }
+    };
+    function checkout() {
+      if(!checkoutData["email"]){
+        alert("merci de renseigner votre email.");
+        document.getElementById("email").focus();
+        return (false);
+      }
+      fetch("https://dev1.unikbase.dev/meveo/rest/strcheckout", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(checkoutData)
+      }).then((response) => response.text())
+      .then((url) => {
+        if(url.startsWith("https://checkout.stripe.com")){
+          window.location.replace(url);
+        } else {
+          alert("Nous avons rencontre un probleme technique, notre equipe vous contactera pour le resoudre.")
+        }
+      });
+    }
+    function setEmail(val){
+      if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(val)){
+          return (false)
+      }
+      checkoutData["email"]=val;
+      document.getElementById("checkout-button").innerText="Commander";
+      document.getElementById("checkout-button").disabled=false;
+      console.log("set email: {}",val);
+      return true;
+    }
+  </script>
 </head>
 
 <body onload="init()">
@@ -18,29 +69,22 @@
         <h5>5.00&euro;</h5>
       </div>
     </div>
-    <button type="submit" id="checkout-button" onclick="return checkout()">Checkout</button>
+    <div id="email-section">
+      Un lien de telechargement sera envoye a votre email <span id="email"></span>
+      <br/>
+    </div>
+    <div id="no-email-section" style="display:none">
+      email de reception le lien de telechargement de votre double digital:<br/>
+      <input type="email" id="email-input" size="30" onKeyUp="setEmail(this.value)">
+      <br/>
+    </div>
+    
+    <div id="footer-section">
+      .
+    </div>
+    <button type="submit" id="checkout-button" onclick="return checkout()" disabled="true">Merci de renseigner votre email</button>
   </section>
-  <script>
-    var checkoutData = {}
-    function init() {
-      var s1 = location.search.substring(1, location.search.length).split('&'),
-        s2, i;
-      for (i = 0; i < s1.length; i += 1) {
-        s2 = s1[i].split('=');
-        checkoutData[decodeURIComponent(s2[0])] = decodeURIComponent(s2[1]);
-      }
-      document.getElementById("object-img").src=checkoutData["image"];
-    };
-    function checkout() {
-      fetch("https://dev1.unikbase.dev/meveo/rest/strcheckout", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(checkoutData)
-      }).then(res => {
-        console.log("Request complete! response:", res);
-      });
-    }
-  </script>
+  
 </body>
 
 </html>

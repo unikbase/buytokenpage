@@ -11,11 +11,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 section {
+  text-align: center;
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  width: 400px;
-  height: 112px;
+  width: 500px;
   border-radius: 6px;
   justify-content: space-between;
 }
